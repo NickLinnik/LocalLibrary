@@ -12,6 +12,15 @@ class Genre(models.Model):
         """Return string for representing the genre."""
 
 
+class Language(models.Model):
+    name = models.CharField(max_length=200,
+                            help_text="Enter the book's natural language (e.g. English, French, Japanese etc.)")
+
+    def __str__(self):
+        """String for representing the Language object (in Admin site etc.)"""
+        return self.name
+
+
 class Book(models.Model):
     """Model representing a book (but not a specific copy of a book)."""
     title = models.CharField(max_length=200)
@@ -21,6 +30,7 @@ class Book(models.Model):
                             help_text='13 Character <a href=\
                             "https://www.isbn-international.org/content/what-isbn">ISBN number</a>')
     genre = models.ManyToManyField(Genre, help_text='Select a genre for this book')
+    language_of_origin = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         """String for representing the book."""
@@ -38,6 +48,7 @@ class BookInstance(models.Model):
     book = models.ForeignKey(Book, on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
+    language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
 
     LOAN_STATUS = (
         ('m', 'Maintenance'),
