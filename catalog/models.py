@@ -10,6 +10,7 @@ class Genre(models.Model):
 
     def __str__(self):
         """Return string for representing the genre."""
+        return self.name
 
 
 class Language(models.Model):
