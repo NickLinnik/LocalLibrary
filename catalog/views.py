@@ -1,3 +1,6 @@
+import os.path
+
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render
 from django.views import generic
 from .models import Author, Book, BookInstance, Genre
@@ -29,7 +32,7 @@ def index(request):
 
 class BookListView(generic.ListView):
     model = Book
-    paginate_by = 15
+    paginate_by = 10
     context_object_name = 'book_list'  # default name
     # queryset = Book.objects.filter(title__icontains='crime')[:5]
     template_name = 'catalog/book_list_.html'  # Specify your own template name/location
@@ -49,8 +52,30 @@ class BookDetailView(generic.DetailView):
 
 class AuthorListView(generic.ListView):
     model = Author
-    paginate_by = 15
+    paginate_by = 10
 
 
 class AuthorDetailView(generic.DetailView):
     model = Author
+
+
+class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
+    """Generic class-based view listing books on loan to current user."""
+    model = BookInstance
+    template_name = os.path.join('catalog', 'bookinstance_list_borrowed_user.html')
+    paginate_by = 10
+
+    def get_queryset(self):
+        return BookInstance.objects\
+            .filter(borrower=self.request.user)\
+            .filter(status__exact='o')
+
+
+class LoanedBooksListView(PermissionRequiredMixin, generic.ListView):
+    model = BookInstance
+    permission_required = 'catalog.can_mark_returned'
+    paginate_by = 10
+    template_name = os.path.join('catalog', 'bookinstance_list_borrowed_all.html')
+
+    def get_queryset(self):
+        return BookInstance.objects.filter(status__exact='o')
