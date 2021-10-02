@@ -10,7 +10,8 @@
                     {% block bookinstance_view %}
                         <a href="{% url 'book-detail' bookinstance.book.pk %}">
                             {{ bookinstance.book.title }}
-                        </a> ({{ bookinstance.due_back }}) - {{ bookinstance.borrower }}
+                        </a> ({{ bookinstance.due_back }}) - {{ bookinstance.borrower }}.
+                        <a href="{% url 'renew-book-librarian' bookinstance.id %}"> Renew</a>
                     {% endblock %}
                 </li>
             {% endfor %}

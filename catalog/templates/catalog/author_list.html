@@ -2,11 +2,18 @@
 
 {% block content %}
     <h1>Authors</h1>
+    <hr>
+    <a href="{% url 'author-create' %}">Add author</a>
+    <hr>
     {% if author_list %}
         <ul>
             {% for author in author_list %}
                 <li>
                     <a href="{{ author.get_absolute_url }}">{{ author.last_name }}, {{ author.first_name }}</a>
+                    {% if perms.catalog.can_mark_returned %}
+                         | <a href="{% url 'author-update' author.id %}">Update author</a> |
+                        <a href="{% url 'author-delete' author.id %}">Delete author</a>|
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>

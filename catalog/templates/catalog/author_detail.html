@@ -10,6 +10,12 @@
     {% if author.date_of_death %}
         <p><strong>Date of death:</strong> {{ author.date_of_death }}</p>
     {% endif %}
+    <p>
+        {% if perms.catalog.can_mark_returned %}
+            | <a href="{% url 'author-update' author.id %}">Update author</a> |
+            <a href="{% url 'author-delete' author.id %}">Delete author</a>|
+        {% endif %}
+    </p>
 
     <div class="nested">
         {% if author.book_set %}
@@ -19,7 +25,7 @@
                 {% for book in author.book_set.all %}
                     <p>
                         <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> ({{ book.id }})
-                    <br>{{ book.summary }}
+                        <br>{{ book.summary }}
                     </p>
                 {% endfor %}
             </ul>
