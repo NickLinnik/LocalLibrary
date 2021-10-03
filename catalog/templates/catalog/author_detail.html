@@ -13,7 +13,7 @@
     <p>
         {% if perms.catalog.can_mark_returned %}
             | <a href="{% url 'author-update' author.id %}">Update author</a> |
-            <a href="{% url 'author-delete' author.id %}">Delete author</a>|
+            <a href="{% url 'author-delete' author.id %}">Delete author</a> |
         {% endif %}
     </p>
 
@@ -25,6 +25,12 @@
                 {% for book in author.book_set.all %}
                     <p>
                         <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> ({{ book.id }})
+
+                        {% if perms.catalog.can_mark_returned %}
+                            | <a href="{% url 'book-update' book.id %}">Update book</a> |
+                            <a href="{% url 'book-delete' book.id %}">Delete book</a> |
+                        {% endif %}
+
                         <br>{{ book.summary }}
                     </p>
                 {% endfor %}

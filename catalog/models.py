@@ -1,9 +1,11 @@
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from datetime import date
+from django.utils.translation import gettext_lazy as _
 
 
 class Genre(models.Model):
@@ -85,9 +87,17 @@ class BookInstance(models.Model):
         """String for representing the particular instance of the book."""
         return f'{self.id} ({self.book.title})'
 
+    def clean(self):
+        if self.status in {'a', 'm'} and (self.due_back or self.borrower):
+            raise ValidationError(_('Invalid status - book can\'t have status '
+                                    '"Available" or "Maintenance" while having Borrower and Renewal date'))
+
     @property
     def is_overdue(self):
         return bool(self.due_back and self.due_back < date.today())
+
+    def get_absolute_url(self):
+        return reverse('bookinstance-detail', args=[str(self.id)])
 
 
 class Author(models.Model):

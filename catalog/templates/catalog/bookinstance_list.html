@@ -1,0 +1,24 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>List of book copies</h1>
+    <hr>
+    <a href="{% url 'bookinstance-create' %}">Add copy of a book</a>
+    <hr>
+    {% if bookinstance_list %}
+        <ul>
+            {% for bookinstance in bookinstance_list %}
+                <li>
+                    <a href="{{ bookinstance.get_absolute_url }}">
+                        {{ bookinstance.book.title }}</a> {{ bookinstance.book.author }} ({{ bookinstance.language }})
+                    {% if perms.catalog.can_mark_returned %}
+                        | <a href="{% url 'bookinstance-update' bookinstance.id %}">Update copy of a book</a> |
+                        <a href="{% url 'bookinstance-delete' bookinstance.id %}">Delete copy of a book</a> |
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>There are no books in the library.</p>
+    {% endif %}
+{% endblock %}

@@ -9,7 +9,7 @@ from django.views import generic
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
-from .forms import RenewBookForm
+from .forms import RenewBookForm, UpdateBookInstanceModelForm
 from .models import Author, Book, BookInstance, Genre
 
 
@@ -77,11 +77,10 @@ class BookListView(generic.ListView):
     # def get_queryset(self):
     #     return Book.objects.filter(title__icontains='crime')[:5]
 
-    def get_context_data(self, **kwargs):
-        context = super(BookListView, self).get_context_data(**kwargs)
-        context['list_end'] = 'This is the end of the list'
-        return context
-
+    # def get_context_data(self, **kwargs):
+    #     context = super(BookListView, self).get_context_data(**kwargs)
+    #     context['list_end'] = 'This is the end of the list'
+    #     return context
 
 class BookDetailView(generic.DetailView):
     model = Book
@@ -91,9 +90,16 @@ class AuthorListView(generic.ListView):
     model = Author
     paginate_by = 10
 
-
 class AuthorDetailView(generic.DetailView):
     model = Author
+
+
+class BookInstanceListView(LoginRequiredMixin, generic.ListView):
+    model = BookInstance
+    paginate_by = 10
+
+class BookInstanceDetailView(LoginRequiredMixin, generic.DetailView):
+    model = BookInstance
 
 
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
@@ -124,7 +130,6 @@ class AuthorCreate(PermissionRequiredMixin, CreateView):
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
     # initial = {'date_of_death': '11/06/2020'}
 
-
 class AuthorUpdate(PermissionRequiredMixin, UpdateView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
@@ -134,6 +139,7 @@ class AuthorDelete(PermissionRequiredMixin, DeleteView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
     success_url = reverse_lazy('authors')
+
 
 class BookCreate(PermissionRequiredMixin, CreateView):
     model = Book
@@ -149,3 +155,22 @@ class BookDelete(PermissionRequiredMixin, DeleteView):
     model = Book
     permission_required = 'catalog.can_mark_returned'
     success_url = reverse_lazy('books')
+
+
+class BookInstanceCreate(PermissionRequiredMixin, CreateView):
+    model = BookInstance
+    permission_required = 'catalog.can_mark_returned'
+    fields = ['book', 'language', 'imprint', 'status']
+    initial = {'status': 'a'}
+
+class BookInstanceUpdate(PermissionRequiredMixin, UpdateView):
+    form_class = UpdateBookInstanceModelForm
+    model = BookInstance
+    permission_required = 'catalog.can_mark_returned'
+
+class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
+    model = BookInstance
+    permission_required = 'catalog.can_mark_returned'
+
+    def get_success_url(self):
+        return reverse_lazy('bookinstances')

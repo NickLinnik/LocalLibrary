@@ -1,0 +1,19 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+    <h4>Book: <a href="{% url 'book-detail' bookinstance.book.id %}">{{ bookinstance.book.title }}</a></h4>
+    <p>Id: {{ bookinstance.id }}</p>
+    <p><strong>Author:</strong> <a href="{{ bookinstance.book.author.get_absolute_url }}">
+        {{ bookinstance.book.author }}</a></p>
+    <p><strong>Summary:</strong> {{ bookinstance.book.summary }}</p>
+    <p><strong>Imprint:</strong> {{ bookinstance.imprint }}</p>
+    <p><strong>ISBN:</strong> {{ bookinstance.book.isbn }}</p>
+    <p><strong>Language of origin:</strong> {{ bookinstance.book.language_of_origin }}</p>
+    <p><strong>Language of a copy:</strong> {{ bookinstance.language }}</p>
+    <p><strong>Genre:</strong> {{ book.genre.all|join:', ' }}</p>
+
+    {% if perms.catalog.can_mark_returned %}
+        <p>| <a href="{% url 'bookinstance-update' bookinstance.id %}">Update copy of a book</a> |
+            <a href="{% url 'bookinstance-delete' bookinstance.id %}">Delete copy of a book</a> |</p>
+    {% endif %}
+{% endblock %}
