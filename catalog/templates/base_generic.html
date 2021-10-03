@@ -13,6 +13,7 @@
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/links.css' %}">
 
     {% block title %}<title>Local Library</title>{% endblock %}
 </head>
@@ -21,24 +22,24 @@
     <div class="row">
         <div class="col-sm-2">
             {% block sidebar %}
-                <ul class="sidebar-nav">
-                    <li><a href="{% url 'index' %}">Home</a></li>
-                    <li><a href="{% url 'books' %}">All books</a></li>
-                    <li><a href="{% url 'authors' %}">All authors</a></li>
+                <ul class="sidebar-nav this-nav">
+                    <li><a href="{% url 'index' %}" class="third after">Home</a></li>
+                    <li><a href="{% url 'books' %}" class="third after">All books</a></li>
+                    <li><a href="{% url 'authors' %}" class="third after">All authors</a></li>
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'bookinstances' %}">All book copies</a></li>
+                        <li><a href="{% url 'bookinstances' %}" class="third after">All book copies</a></li>
                     {% endif %}
                     <hr>
                     {% if user.is_authenticated %}
                         <li>User: {{ user.get_username }}</li>
-                        <li><a href="{% url 'my-borrowed' %}">My Borrowed</a></li>
-                        <li><a href="{% url 'logout' %}?next={{ request.path }}">Logout</a></li>
+                        <li><a href="{% url 'my-borrowed' %}" class="third after">My Borrowed</a></li>
+                        <li><a href="{% url 'logout' %}?next={{ request.path }}" class="third after">Logout</a></li>
                     {% else %}
-                        <li><a href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
+                        <li><a href="{% url 'login' %}?next={{ request.path }}" class="third after">Login</a></li>
                     {% endif %}
                     {% if perms.catalog.can_mark_returned %}
                         <hr>
-                        <li><a href="{% url 'all-borrowed' %}">All Borrowed</a></li>
+                        <li><a href="{% url 'all-borrowed' %}" class="third after">All Borrowed</a></li>
                     {% endif %}
                 </ul>
                 <hr>
@@ -47,7 +48,7 @@
                 {% endif %}
             {% endblock %}
         </div>
-        <div class="col-sm-10 ">
+        <div class="col-sm-10 content">
             {% block content %}{% endblock %}
 
             {% block pagination %}
