@@ -21,20 +21,24 @@
         {% if author.book_set %}
             <h4>Books</h4>
             <hr>
-            <ul>
-                {% for book in author.book_set.all %}
-                    <p>
-                        <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> ({{ book.id }})
+            {% if author.book_set %}
+                <ul>
+                    {% for book in author.book_set.all %}
+                        <p>
+                            <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> ({{ book.id }})
 
-                        {% if perms.catalog.can_mark_returned %}
-                            | <a href="{% url 'book-update' book.id %}">Update book</a> |
-                            <a href="{% url 'book-delete' book.id %}">Delete book</a> |
-                        {% endif %}
+                            {% if perms.catalog.can_mark_returned %}
+                                | <a href="{% url 'book-update' book.id %}">Update book</a> |
+                                <a href="{% url 'book-delete' book.id %}">Delete book</a> |
+                            {% endif %}
 
-                        <br>{{ book.summary }}
-                    </p>
-                {% endfor %}
-            </ul>
+                            <br>{{ book.summary }}
+                        </p>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>There are no books of this author added to the library yet</p>
+            {% endif %}
         {% endif %}
     </div>
 {% endblock %}
