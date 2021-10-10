@@ -1,0 +1,30 @@
+body {
+    background-image: url("../images/reader.jpg");
+}
+
+.sidebar-nav {
+    margin-top: 10%;
+    padding: 0;
+    list-style: none;
+}
+
+.nested {
+    margin-left: 5%;
+    margin-top: 2%;
+}
+
+.this-nav {
+}
+
+.this-nav::after {
+    /*background: ;*/
+}
+
+.content {
+    padding-top: 2%;
+    background-size: cover;
+}
+
+.this-text-warning {
+    color: #ff7b00;
+}

@@ -60,7 +60,7 @@ class BookInstance(models.Model):
                           help_text='Unique ID for this particular book across whole library')
     book = models.ForeignKey(Book, on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
-    due_back = models.DateField(null=True, blank=True)
+    due_back = models.DateField(null=True, blank=True, help_text='YYYY-MM-DD')
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
     borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -104,8 +104,8 @@ class Author(models.Model):
     """Model representing an author."""
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    date_of_birth = models.DateField(null=True, blank=True)
-    date_of_death = models.DateField('died', null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True, help_text='YYYY-MM-DD')
+    date_of_death = models.DateField('died', null=True, blank=True, help_text='YYYY-MM-DD')
 
     class Meta:
         ordering = ['last_name', 'first_name']
