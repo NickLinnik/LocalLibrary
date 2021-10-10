@@ -24,18 +24,15 @@
             <ul>
                 {% for book in author.book_set.all %}
                     <hr>
-                    <p class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'm' %}text-danger{% else %}this-text-warning{% endif %}">
-                        {{ copy.get_status_display }}
-                    </p>
-                    {% if copy.status != 'a' and copy.status != 'r' %}
-                        <p><strong>Due to be returned:</strong> {{ copy.due_back }}</p>
-                    {% endif %}
-                    <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
-                    <p class="text-muted"><strong>Id:</strong> {{ copy.id }}
+                    <p>
+                        <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> ({{ book.id }})
+
                         {% if perms.catalog.can_mark_returned %}
-                            | <a href="{% url 'bookinstance-update' copy.id %}">Update copy of a book</a>
-                            | <a href="{% url 'bookinstance-delete' copy.id %}">Delete copy of a book</a> |
+                            | <a href="{% url 'book-update' book.id %}">Update book</a> |
+                            <a href="{% url 'book-delete' book.id %}">Delete book</a> |
                         {% endif %}
+
+                        <br>{{ book.summary }}
                     </p>
                 {% endfor %}
             </ul>
