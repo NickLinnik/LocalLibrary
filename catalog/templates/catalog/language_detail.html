@@ -1,28 +1,19 @@
 {% extends 'base_generic.html' %}
 
-<link rel="stylesheet" href="">
 {% block content %}
-    <h1>{{ author.last_name }}, {{ author.first_name }}</h1>
+    <h4>Name: {{ language.name }}</h4>
 
-    {% if author.date_of_birth %}
-        <p><strong>Date of birth:</strong> {{ author.date_of_birth }}</p>
+    {% if perms.catalog.can_mark_returned %}
+        <p>| <a href="{% url 'language-update' language.id %}">Update language</a> |
+            <a href="{% url 'language-delete' language.id %}">Delete language</a> |</p>
     {% endif %}
-    {% if author.date_of_death %}
-        <p><strong>Date of death:</strong> {{ author.date_of_death }}</p>
-    {% endif %}
-    <p>
-        {% if perms.catalog.can_mark_returned %}
-            | <a href="{% url 'author-update' author.id %}">Update author</a> |
-            <a href="{% url 'author-delete' author.id %}">Delete author</a> |
-        {% endif %}
-    </p>
 
     <div class="nested">
-        <h4>Books</h4>
-        <a href="{% url 'book-create' %}">Add book</a>
-        {% if author.book_set %}
+        {% if language.book_set %}
+            <h4>Books</h4>
+            <a href="{% url 'bookinstance-create' %}">Add copy of a book</a>
             <ul>
-                {% for book in author.book_set.all %}
+                {% for copy in language.bookinstance_set.all %}
                     <hr>
                     <p class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'm' %}text-danger{% else %}this-text-warning{% endif %}">
                         {{ copy.get_status_display }}
@@ -40,7 +31,7 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p>There are no books of this author added to the library yet</p>
+            <p>There are no books of this language added to the library yet</p>
         {% endif %}
     </div>
 {% endblock %}

@@ -16,6 +16,9 @@ class Genre(models.Model):
         """Return string for representing the genre."""
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('genre-detail', args=[str(self.id)])
+
 
 class Language(models.Model):
     name = models.CharField(max_length=200,
@@ -24,6 +27,9 @@ class Language(models.Model):
     def __str__(self):
         """String for representing the Language object (in Admin site etc.)"""
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('language-detail', args=[str(self.id)])
 
 
 class Book(models.Model):

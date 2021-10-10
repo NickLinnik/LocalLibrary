@@ -10,7 +10,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from .forms import RenewBookForm, UpdateBookInstanceModelForm
-from .models import Author, Book, BookInstance, Genre
+from .models import Author, Book, BookInstance, Genre, Language
 
 
 def index(request):
@@ -124,6 +124,22 @@ class LoanedBooksListView(PermissionRequiredMixin, generic.ListView):
         return BookInstance.objects.filter(status__exact='o')
 
 
+class GenreList(generic.ListView):
+    model = Genre
+    paginate_by = 10
+
+class GenreDetail(generic.DetailView):
+    model = Genre
+
+
+class LanguageList(generic.ListView):
+    model = Language
+    paginate_by = 10
+
+class LanguageDetail(generic.DetailView):
+    model = Language
+
+
 class AuthorCreate(PermissionRequiredMixin, CreateView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
@@ -174,3 +190,39 @@ class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('bookinstances')
+
+
+class GenreCreate(PermissionRequiredMixin, CreateView):
+    model = Genre
+    permission_required = 'catalog.can_mark_returned'
+    fields = '__all__'
+
+class GenreUpdate(PermissionRequiredMixin, UpdateView):
+    model = Genre
+    permission_required = 'catalog.can_mark_returned'
+    fields = '__all__'
+
+class GenreDelete(PermissionRequiredMixin, DeleteView):
+    model = Genre
+    permission_required = 'catalog.can_mark_returned'
+
+    def get_success_url(self):
+        return reverse_lazy('genres')
+
+
+class LanguageCreate(PermissionRequiredMixin, CreateView):
+    model = Language
+    permission_required = 'catalog.can_mark_returned'
+    fields = '__all__'
+
+class LanguageUpdate(PermissionRequiredMixin, UpdateView):
+    model = Language
+    permission_required = 'catalog.can_mark_returned'
+    fields = '__all__'
+
+class LanguageDelete(PermissionRequiredMixin, DeleteView):
+    model = Language
+    permission_required = 'catalog.can_mark_returned'
+
+    def get_success_url(self):
+        return reverse_lazy('languages')
