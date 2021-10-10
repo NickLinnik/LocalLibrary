@@ -13,7 +13,7 @@
                 <li>
                     <a href="{{ author.get_absolute_url }}">{{ author.last_name }}, {{ author.first_name }}</a>
                     {% if perms.catalog.can_mark_returned %}
-                        | <a href="{% url 'author-update' author.id %}">Update author</a> |
+                        || <a href="{% url 'author-update' author.id %}">Update author</a> |
                         <a href="{% url 'author-delete' author.id %}">Delete author</a> |
                     {% endif %}
                 </li>

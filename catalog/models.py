@@ -105,6 +105,9 @@ class BookInstance(models.Model):
     def get_absolute_url(self):
         return reverse('bookinstance-detail', args=[str(self.id)])
 
+    def get_status(self):
+        return dict(BookInstance.LOAN_STATUS)[self.status]
+
 
 class Author(models.Model):
     """Model representing an author."""

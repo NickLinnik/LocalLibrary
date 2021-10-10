@@ -10,7 +10,11 @@
     <p><strong>ISBN:</strong> {{ bookinstance.book.isbn }}</p>
     <p><strong>Language of origin:</strong> {{ bookinstance.book.language_of_origin }}</p>
     <p><strong>Language of a copy:</strong> {{ bookinstance.language }}</p>
-    <p><strong>Genre:</strong> {{ book.genre.all|join:', ' }}</p>
+    <p><strong>Genre:</strong> {{ bookinstance.book.genre.all|join:', ' }}</p>
+    <p><strong>Status:</strong> {{ bookinstance.get_status }}</p>
+    {% if bookinstance.status != 'a' %}
+        <p><strong>Due back date:</strong> {{ bookinstance.due_back }}</p>
+    {% endif %}
 
     {% if perms.catalog.can_mark_returned %}
         <p>| <a href="{% url 'bookinstance-update' bookinstance.id %}">Update copy of a book</a> |
