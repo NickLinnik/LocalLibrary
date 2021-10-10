@@ -33,7 +33,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', 'murmuring-crag-05978.herokuapp.com']
 
 
 # Application definition
