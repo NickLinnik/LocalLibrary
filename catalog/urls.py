@@ -51,6 +51,10 @@ urlpatterns = [
     path('language/create/', views.LanguageCreate.as_view(), name='language-create'),
     path('language/<int:pk>/update/', views.LanguageUpdate.as_view(), name='language-update'),
     path('language/<int:pk>/delete/', views.LanguageDelete.as_view(), name='language-delete'),
+
+    # Log
+    path('logs/', views.LogList.as_view(), name='logs')
+
     # re_path(r'^book/(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})',
     #         views.FilteredBookListView.as_view, name='filtered-book-detail'),
 ]

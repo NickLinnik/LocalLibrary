@@ -9,4 +9,4 @@ from django.contrib.auth.models import User, Group
 @receiver(post_save, sender=Author, dispatch_uid='post_save_Author')
 @receiver(post_save, sender=Book, dispatch_uid='post_save_Book')
 def save_log(sender, **kwargs):
-    print(sender)
+    pass

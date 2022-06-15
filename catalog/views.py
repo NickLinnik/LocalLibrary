@@ -1,5 +1,6 @@
 import datetime
 import os.path
+import re
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -10,7 +11,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from .forms import RenewBookForm, UpdateBookInstanceModelForm
-from .models import Author, Book, BookInstance, Genre, Language
+from .models import Author, Book, BookInstance, Genre, Language, Log
 
 
 # http://localhost:8000/catalog/books/title/like/cr
@@ -18,11 +19,11 @@ class BooksByTitleLikeListView(generic.ListView):
     def get_queryset(self):
         return Book.objects.filter(title__icontains=self.kwargs['title'])
 
+
 # http://localhost:8000/catalog/authors/born/between/1500-01-01/1900-01-01
 class AuthorsBornBetweenListView(generic.ListView):
     def get_queryset(self):
-        return Author.objects.filter(date_of_birth__range=
-                                     [self.kwargs['date1'], self.kwargs['date2']])
+        return Author.objects.filter(date_of_birth__range=[self.kwargs['date1'], self.kwargs['date2']])
 
 
 def index(request):
@@ -113,11 +114,12 @@ class BookListView(generic.ListView):
     # queryset = Book.objects.filter(title__icontains='crime')[:5]
     template_name = 'catalog/book_list.html'  # Specify your own template name/location
 
-    # def get_queryset(self):
-    #     return Book.objects.filter(title__icontains='crime')[:5]
+    # def dispatch(self, request, *args, **kwargs):
+    #     print(request.user)
+    #     return self.get(request, *args, **kwargs)
 
     # def get_queryset(self):
-    #     return
+    #     return Book.objects.filter(title__icontains='crime')[:5]
 
     # def get_context_data(self, **kwargs):
     #     context = super(BookListView, self).get_context_data(**kwargs)
@@ -126,7 +128,6 @@ class BookListView(generic.ListView):
 
 
 class BookDetailView(generic.DetailView):
-
     # log = Genre.objects.create(user=self.request.user,
     #       action_take='your description', row=something)
     model = Book
@@ -194,6 +195,12 @@ class AuthorCreate(PermissionRequiredMixin, CreateView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
+
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
     # initial = {'date_of_death': '11/06/2020'}
 
 
@@ -202,11 +209,23 @@ class AuthorUpdate(PermissionRequiredMixin, UpdateView):
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
 
 class AuthorDelete(PermissionRequiredMixin, DeleteView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
     success_url = reverse_lazy('authors')
+
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
 
 
 class BookCreate(PermissionRequiredMixin, CreateView):
@@ -214,17 +233,35 @@ class BookCreate(PermissionRequiredMixin, CreateView):
     permission_required = 'catalog.can_mark_returned'
     fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language_of_origin']
 
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
 
 class BookUpdate(PermissionRequiredMixin, UpdateView):
     model = Book
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
 
 class BookDelete(PermissionRequiredMixin, DeleteView):
     model = Book
     permission_required = 'catalog.can_mark_returned'
     success_url = reverse_lazy('books')
+
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
 
 
 class BookInstanceCreate(PermissionRequiredMixin, CreateView):
@@ -233,11 +270,23 @@ class BookInstanceCreate(PermissionRequiredMixin, CreateView):
     fields = ['book', 'language', 'imprint', 'status']
     initial = {'status': 'a'}
 
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
 
 class BookInstanceUpdate(PermissionRequiredMixin, UpdateView):
     form_class = UpdateBookInstanceModelForm
     model = BookInstance
     permission_required = 'catalog.can_mark_returned'
+
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
 
 
 class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
@@ -247,17 +296,35 @@ class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('bookinstances')
 
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
 
 class GenreCreate(PermissionRequiredMixin, CreateView):
     model = Genre
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
 
 class GenreUpdate(PermissionRequiredMixin, UpdateView):
     model = Genre
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
+
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
 
 
 class GenreDelete(PermissionRequiredMixin, DeleteView):
@@ -267,17 +334,35 @@ class GenreDelete(PermissionRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('genres')
 
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
 
 class LanguageCreate(PermissionRequiredMixin, CreateView):
     model = Language
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
 
 class LanguageUpdate(PermissionRequiredMixin, UpdateView):
     model = Language
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
+
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
 
 
 class LanguageDelete(PermissionRequiredMixin, DeleteView):
@@ -286,3 +371,13 @@ class LanguageDelete(PermissionRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('languages')
+
+    def get_queryset(self):
+        if self.request.method == 'POST':
+            Log(model=self.model.__name__, user_id=self.request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().get_queryset()
+
+
+class LogList(generic.ListView):
+    model = Log

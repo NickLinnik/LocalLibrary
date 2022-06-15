@@ -132,8 +132,8 @@ class Author(models.Model):
 class Log(models.Model):
     model = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=PROTECT)
-    date = models.DateField(help_text='YYYY-MM-DD')
-    detail = models.TextField(null=True, blank=True)
+    date = models.DateTimeField()
+    operation = models.CharField(max_length=50, null=True)
 
     def get_absolute_url(self):
         return reverse('log-detail', args=[str(self.id)])

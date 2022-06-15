@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Log</h1>
+    {% if log_list %}
+        <table class="table">
+        <tr><th>id</th><th>username</th><th>model</th><th>operation</th><th>date</th></tr>
+        {% for log in log_list %}
+        <tr><th>{{ log.id }}</th><th>{{ log.user.username }}</th>
+            <th>{{ log.model }}</th><th>{{ log.operation }}</th><th>{{ log.date }}</th></tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <p>There are no books in the library.</p>
+    {% endif %}
+{% endblock %}

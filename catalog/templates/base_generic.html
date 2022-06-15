@@ -45,6 +45,10 @@
                         <hr>
                         <li><a href="{% url 'all-borrowed' %}" class="third after">All Borrowed</a></li>
                     {% endif %}
+                    {% if user.is_superuser %}
+                        <hr>
+                        <li><a href="{% url 'logs' %}" class="third after">Logs</a></li>
+                    {% endif %}
                 </ul>
                 <hr>
                 {% if num_visits %}
