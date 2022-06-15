@@ -15,7 +15,7 @@ urlpatterns = [
 
     # Book
     path('books/', views.BookListView.as_view(), name='books'),
-    path('books/print/', views.BookListView.as_view(), kwargs={'print': True}, name='books'),
+    path('books/print/', views.print_books_pdf, name='print_books'),
     path('book/<int:pk>/', views.BookDetailView.as_view(), name='book-detail'),
     path('book/<uuid:pk>/renew/', views.renew_book_librarian, name='renew-book-librarian'),
     path('book/create/', views.BookCreate.as_view(), name='book-create'),

@@ -5,7 +5,8 @@
     <hr>
 
     {% if perms.catalog.can_mark_returned %}
-        <a href="{% url 'book-create' %}">Add book</a>
+        <p><a href="{% url 'book-create' %}">Add book</a></p>
+        <p><a href="{% url 'print_books' %}">Print list to table</a></p>
         <hr>
     {% endif %}
     {% if book_list %}

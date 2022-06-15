@@ -7,3 +7,6 @@ python-dotenv==0.19.0
 pytz==2021.1
 sqlparse==0.4.2
 whitenoise==5.3.0
+
+pandas~=1.4.2
+pdfkit~=1.0.0
