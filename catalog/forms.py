@@ -23,6 +23,7 @@ class RenewBookForm(forms.Form):
 
         return data
 
+
 class UpdateBookInstanceModelForm(ModelForm):
     class Meta:
         model = BookInstance

@@ -1,7 +1,7 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
-    <form action="" method="post">
+    <form action="" class="mb-3" method="post">
     {% csrf_token %}
     <table>
         {{ form.as_table }}

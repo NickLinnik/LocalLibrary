@@ -13,6 +13,18 @@ from .forms import RenewBookForm, UpdateBookInstanceModelForm
 from .models import Author, Book, BookInstance, Genre, Language
 
 
+# http://localhost:8000/catalog/books/title/like/cr
+class BooksByTitleLikeListView(generic.ListView):
+    def get_queryset(self):
+        return Book.objects.filter(title__icontains=self.kwargs['title'])
+
+# http://localhost:8000/catalog/authors/born/between/1500-01-01/1900-01-01
+class AuthorsBornBetweenListView(generic.ListView):
+    def get_queryset(self):
+        return Author.objects.filter(date_of_birth__range=
+                                     [self.kwargs['date1'], self.kwargs['date2']])
+
+
 def index(request):
     num_books = Book.objects.all().count()
     num_instances = BookInstance.objects.all().count()
@@ -20,6 +32,29 @@ def index(request):
     num_authors = Author.objects.all().count()
     num_genres = Genre.objects.all().count()
     num_books_with_crime_word = Book.objects.all().filter(title__contains='Crime').count()
+
+    authors_with_max_books_map = {'first_name': 'first', 'last_name': 'last', 'count': 'count'}
+    authors_with_max_books = Author.objects.raw('''
+SELECT ca.id, ca.first_name, ca.last_name, COUNT(cb.id)
+FROM catalog_author ca
+         INNER JOIN catalog_book cb ON ca.id = cb.author_id
+GROUP BY ca.id
+HAVING COUNT(cb.id) >= ALL (SELECT COUNT(*)
+                            FROM catalog_book ca
+                            GROUP BY ca.author_id)''',
+                                                translations=authors_with_max_books_map)
+
+    # youngest_and_oldest_authors_map = {'first_name': 'first_name', 'last_name': 'last_name',
+    #                                    'date_of_birth': 'date_of_birth',
+    #                                    'date_of_death': 'date_of_death', 'comment': 'comment'}
+    youngest_and_oldest_authors = Author.objects.raw('''
+SELECT *, 'Oldest author(s) in the library' AS comment
+FROM catalog_author
+WHERE date_of_birth = (SELECT MIN(date_of_birth) FROM catalog_author)
+UNION ALL
+SELECT *, 'Youngest author(s) in the library' AS comment
+FROM catalog_author
+WHERE date_of_birth >= ALL (SELECT MAX(date_of_birth) FROM catalog_author)''')
 
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
@@ -31,6 +66,9 @@ def index(request):
         'num_authors': num_authors,
         'num_genres': num_genres,
         'num_books_with_crime_word': num_books_with_crime_word,
+        'authors_with_max_books': authors_with_max_books,
+        'youngest_and_oldest_authors': youngest_and_oldest_authors,
+
         'num_visits': num_visits,
     }
 
@@ -68,12 +106,13 @@ def renew_book_librarian(request, pk):
 
 
 class BookListView(generic.ListView):
+
     model = Book
     paginate_by = 10
+    # context = Language.objects.all()
     context_object_name = 'book_list'  # default name
     # queryset = Book.objects.filter(title__icontains='crime')[:5]
-    template_name = 'catalog/book_list_.html'  # Specify your own template name/location
-
+    template_name = 'catalog/book_list.html'  # Specify your own template name/location
     # def get_queryset(self):
     #     return Book.objects.filter(title__icontains='crime')[:5]
 
@@ -81,6 +120,7 @@ class BookListView(generic.ListView):
     #     context = super(BookListView, self).get_context_data(**kwargs)
     #     context['list_end'] = 'This is the end of the list'
     #     return context
+
 
 class BookDetailView(generic.DetailView):
     model = Book
@@ -90,6 +130,7 @@ class AuthorListView(generic.ListView):
     model = Author
     paginate_by = 10
 
+
 class AuthorDetailView(generic.DetailView):
     model = Author
 
@@ -97,6 +138,7 @@ class AuthorDetailView(generic.DetailView):
 class BookInstanceListView(LoginRequiredMixin, generic.ListView):
     model = BookInstance
     paginate_by = 10
+
 
 class BookInstanceDetailView(LoginRequiredMixin, generic.DetailView):
     model = BookInstance
@@ -109,8 +151,8 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return BookInstance.objects\
-            .filter(borrower=self.request.user)\
+        return BookInstance.objects \
+            .filter(borrower=self.request.user) \
             .filter(status__exact='o')
 
 
@@ -128,6 +170,7 @@ class GenreList(generic.ListView):
     model = Genre
     paginate_by = 10
 
+
 class GenreDetail(generic.DetailView):
     model = Genre
 
@@ -135,6 +178,7 @@ class GenreDetail(generic.DetailView):
 class LanguageList(generic.ListView):
     model = Language
     paginate_by = 10
+
 
 class LanguageDetail(generic.DetailView):
     model = Language
@@ -146,10 +190,12 @@ class AuthorCreate(PermissionRequiredMixin, CreateView):
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
     # initial = {'date_of_death': '11/06/2020'}
 
+
 class AuthorUpdate(PermissionRequiredMixin, UpdateView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
+
 
 class AuthorDelete(PermissionRequiredMixin, DeleteView):
     model = Author
@@ -162,10 +208,12 @@ class BookCreate(PermissionRequiredMixin, CreateView):
     permission_required = 'catalog.can_mark_returned'
     fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language_of_origin']
 
+
 class BookUpdate(PermissionRequiredMixin, UpdateView):
     model = Book
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
+
 
 class BookDelete(PermissionRequiredMixin, DeleteView):
     model = Book
@@ -179,10 +227,12 @@ class BookInstanceCreate(PermissionRequiredMixin, CreateView):
     fields = ['book', 'language', 'imprint', 'status']
     initial = {'status': 'a'}
 
+
 class BookInstanceUpdate(PermissionRequiredMixin, UpdateView):
     form_class = UpdateBookInstanceModelForm
     model = BookInstance
     permission_required = 'catalog.can_mark_returned'
+
 
 class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
     model = BookInstance
@@ -197,10 +247,12 @@ class GenreCreate(PermissionRequiredMixin, CreateView):
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
+
 class GenreUpdate(PermissionRequiredMixin, UpdateView):
     model = Genre
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
+
 
 class GenreDelete(PermissionRequiredMixin, DeleteView):
     model = Genre
@@ -215,10 +267,12 @@ class LanguageCreate(PermissionRequiredMixin, CreateView):
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
+
 class LanguageUpdate(PermissionRequiredMixin, UpdateView):
     model = Language
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
+
 
 class LanguageDelete(PermissionRequiredMixin, DeleteView):
     model = Language

@@ -3,6 +3,7 @@
 {% block content %}
     <h1>Book List</h1>
     <hr>
+
     {% if perms.catalog.can_mark_returned %}
         <a href="{% url 'book-create' %}">Add book</a>
         <hr>

@@ -1,15 +1,14 @@
 {% extends 'base_generic.html' %}
 
 {% block title %}
-<title>My Local Library</title>
+    <title>My Local Library</title>
 {% endblock title %}
 
 {% block content %}
     <h1>Local Library Home</h1>
-    <p>Welcome to LocalLibrary, a website developed by
-        <em>Nick Linnik</em> with the help of <em>Mozilla Developer Network</em>!</p>
+    <p><em>Welcome to LocalLibrary</em></p>
     <h2>Dynamic content</h2>
-    <p>The library has the following record counts:</p>
+    <p>The library has the following records:</p>
     <ul>
         <li><strong>Books:</strong> {{ num_books }}</li>
         <li><strong>Copies:</strong> {{ num_instances }}</li>
@@ -17,5 +16,17 @@
         <li><strong>Authors:</strong> {{ num_authors }}</li>
         <li><strong>Genres:</strong> {{ num_genres }}</li>
         <li><strong>Books with "Crime" word:</strong> {{ num_books_with_crime_word }}</li>
+        <li><strong>Author(s) with maximum books: </strong>
+            {% for author in authors_with_max_books %}
+                <span>{{ author.first }} {{ author.last }} ({{ author.count }})</span>
+                {% if not forloop.last %},{% endif %}
+            {% endfor %}
+        </li>
+        {% for author in youngest_and_oldest_authors %}
+            <li><strong>{{ author.comment }}:</strong> {{ author.first_name }} {{ author.last_name }}
+                ({{ author.date_of_birth }} - {{ author.date_of_death|default_if_none:'...' }})
+            </li>
+        {% endfor %}
+
     </ul>
 {% endblock %}

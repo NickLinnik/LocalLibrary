@@ -126,3 +126,8 @@ class Author(models.Model):
     def __str__(self):
         """String for representing the Model object."""
         return f'{self.last_name}, {self.first_name}'
+
+
+# class Log(models.Model):
+#     model = models.CharField(max_length=200)
+

@@ -1,4 +1,6 @@
 body {
+    font-size: 1.5em;
+    padding-right: 5%;
     background-image: url("../images/reader.jpg");
 }
 
