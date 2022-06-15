@@ -1,6 +1,7 @@
 import datetime
 import os.path
 import re
+import pandas as pd
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -113,6 +114,13 @@ class BookListView(generic.ListView):
     context_object_name = 'book_list'  # default name
     # queryset = Book.objects.filter(title__icontains='crime')[:5]
     template_name = 'catalog/book_list.html'  # Specify your own template name/location
+
+    def get_queryset(self):
+        df = pd.DataFrame(super().get_queryset().values(
+            'title', 'author__first_name', 'author__last_name', 'summary', 'isbn', 'language_of_origin__name'))
+        print(df)
+        # print(self.kwargs.get('print'))
+        return super().get_queryset()
 
     # def dispatch(self, request, *args, **kwargs):
     #     print(request.user)
