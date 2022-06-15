@@ -106,15 +106,18 @@ def renew_book_librarian(request, pk):
 
 
 class BookListView(generic.ListView):
-
     model = Book
     paginate_by = 10
     # context = Language.objects.all()
     context_object_name = 'book_list'  # default name
     # queryset = Book.objects.filter(title__icontains='crime')[:5]
     template_name = 'catalog/book_list.html'  # Specify your own template name/location
+
     # def get_queryset(self):
     #     return Book.objects.filter(title__icontains='crime')[:5]
+
+    # def get_queryset(self):
+    #     return
 
     # def get_context_data(self, **kwargs):
     #     context = super(BookListView, self).get_context_data(**kwargs)
@@ -123,6 +126,9 @@ class BookListView(generic.ListView):
 
 
 class BookDetailView(generic.DetailView):
+
+    # log = Genre.objects.create(user=self.request.user,
+    #       action_take='your description', row=something)
     model = Book
 
 

@@ -2,6 +2,7 @@ import uuid
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import PROTECT
 from django.urls import reverse
 from django.contrib.auth.models import User
 from datetime import date
@@ -128,6 +129,11 @@ class Author(models.Model):
         return f'{self.last_name}, {self.first_name}'
 
 
-# class Log(models.Model):
-#     model = models.CharField(max_length=200)
+class Log(models.Model):
+    model = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=PROTECT)
+    date = models.DateField(help_text='YYYY-MM-DD')
+    detail = models.TextField(null=True, blank=True)
 
+    def get_absolute_url(self):
+        return reverse('log-detail', args=[str(self.id)])
