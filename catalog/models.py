@@ -61,6 +61,15 @@ class Book(models.Model):
         return reverse('book-detail', args=[str(self.id)])
 
 
+class Status(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    extra_info = models.TextField(null=True, blank=True)
+
+    def get_absolute_url(self):
+        """Returns the url to access a detail record for this book."""
+        return reverse('status-detail', args=[str(self.id)])
+
+
 class BookInstance(models.Model):
     """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,
@@ -70,21 +79,7 @@ class BookInstance(models.Model):
     due_back = models.DateField(null=True, blank=True, help_text='YYYY-MM-DD')
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
     borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-
-    LOAN_STATUS = (
-        ('m', 'Maintenance'),
-        ('o', 'On loan'),
-        ('a', 'Available'),
-        ('r', 'Reserved'),
-    )
-
-    status = models.CharField(
-        max_length=1,
-        choices=LOAN_STATUS,
-        blank=True,
-        default='m',
-        help_text='Book availability',
-    )
+    status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ['due_back']
@@ -95,7 +90,7 @@ class BookInstance(models.Model):
         return f'{self.id} ({self.book.title})'
 
     def clean(self):
-        if self.status in {'a', 'm'} and (self.due_back or self.borrower):
+        if self.status in {0, 1} and (self.due_back or self.borrower):
             raise ValidationError(_('Invalid status - book can\'t have status '
                                     '"Available" or "Maintenance" while having Borrower and Renewal date'))
 
@@ -107,7 +102,7 @@ class BookInstance(models.Model):
         return reverse('bookinstance-detail', args=[str(self.id)])
 
     def get_status(self):
-        return dict(BookInstance.LOAN_STATUS)[self.status]
+        return self.status.name
 
 
 class Author(models.Model):

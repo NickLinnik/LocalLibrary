@@ -3,6 +3,7 @@ from os.path import join
 import re
 import pandas as pd
 import pdfkit as pdf
+import codecs
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -37,8 +38,13 @@ def print_books_pdf(request):
                          'author__last_name': 'Author last name', 'language_of_origin__name': 'Language'})
     # print(df)
     df.to_html(join(html_dir, 'book_list.html'))
+    line = '''<h1>LocalLibrary booklist</h1>'''
+    with open(join(html_dir, 'book_list.html'), 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
     pdf.from_file(join(html_dir, 'book_list.html'), join(pdf_dir, 'book_list.pdf'), configuration=config)
-    return redirect('books')
+    return redirect('index')
 
 
 class BookDetailView(generic.DetailView):
@@ -82,7 +88,7 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return BookInstance.objects \
             .filter(borrower=self.request.user) \
-            .filter(status__exact='o')
+            .filter(status__exact=3)
 
 
 class LoanedBooksListView(PermissionRequiredMixin, generic.ListView):
@@ -92,7 +98,7 @@ class LoanedBooksListView(PermissionRequiredMixin, generic.ListView):
     template_name = join('catalog', 'bookinstance_list_borrowed_all.html')
 
     def get_queryset(self):
-        return BookInstance.objects.filter(status__exact='o')
+        return BookInstance.objects.filter(status__exact=3)
 
 
 class GenreList(generic.ListView):
@@ -309,7 +315,7 @@ class LogList(generic.ListView):
 def index(request):
     num_books = Book.objects.all().count()
     num_instances = BookInstance.objects.all().count()
-    num_instances_available = BookInstance.objects.all().filter(status__exact='a').count()
+    num_instances_available = BookInstance.objects.all().filter(status__exact=0).count()
     num_authors = Author.objects.all().count()
     num_genres = Genre.objects.all().count()
     num_books_with_crime_word = Book.objects.all().filter(title__contains='Crime').count()

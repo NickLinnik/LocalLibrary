@@ -72,14 +72,5 @@
             </table>
         {% endif %}
         <hr>
-
-        {% if user.is_superuser %}
-            <form class="mb-3" action="{% url 'update_book_summary' %}" method="post">
-                {% csrf_token %}
-                <label for="upd">Update corresponding books' summary with "Highest number of genres in library"</label>
-                <input id="upd" type="submit" value="Update">
-            </form>
-            <hr>
-        {% endif %}
     </ul>
 {% endblock %}
