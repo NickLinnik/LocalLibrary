@@ -6,11 +6,13 @@ import pdfkit as pdf
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db import connection
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.contrib.auth.models import User
 
 from .forms import RenewBookForm, UpdateBookInstanceModelForm
 from .models import Author, Book, BookInstance, Genre, Language, Log
@@ -20,21 +22,12 @@ html_dir = join('catalog', 'static', 'prints', 'html')
 pdf_dir = join('catalog', 'static', 'prints', 'pdf')
 
 
-# http://localhost:8000/catalog/books/title/like/cr
-class BooksByTitleLikeListView(generic.ListView):
-    def get_queryset(self):
-        return Book.objects.filter(title__icontains=self.kwargs['title'])
-
-
-# http://localhost:8000/catalog/authors/born/between/1500-01-01/1900-01-01
-class AuthorsBornBetweenListView(generic.ListView):
-    def get_queryset(self):
-        return Author.objects.filter(date_of_birth__range=[self.kwargs['date1'], self.kwargs['date2']])
-
-
 class BookListView(generic.ListView):
     model = Book
     paginate_by = 10
+
+    def get_queryset(self):
+        return Book.objects.filter(title__icontains=self.request.GET.get('like', ''))
 
 
 def print_books_pdf(request):
@@ -57,6 +50,14 @@ class BookDetailView(generic.DetailView):
 class AuthorListView(generic.ListView):
     model = Author
     paginate_by = 10
+
+    def get_queryset(self):
+        date1 = self.request.GET.get('date1')
+        date2 = self.request.GET.get('date2')
+        return (Author.objects.filter(date_of_birth__range=[date1, date2]) if date1 and date2 else
+                Author.objects.filter(date_of_birth__gte=date1) if date1 else
+                Author.objects.filter(date_of_death__lte=date2) if date2 else
+                Author.objects.all())
 
 
 class AuthorDetailView(generic.DetailView):
@@ -116,6 +117,7 @@ class AuthorCreate(PermissionRequiredMixin, CreateView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
+
     # initial = {'date_of_death': '11/06/2020'}
 
     def dispatch(self, request, *args, **kwargs):
@@ -335,6 +337,32 @@ SELECT *, 'Youngest author(s) in the library' AS comment
 FROM catalog_author
 WHERE date_of_birth >= ALL (SELECT MAX(date_of_birth) FROM catalog_author)''')
 
+    user_loaned_books_count = User.objects.raw('''SELECT au.id, username, COUNT(cbi.id)
+FROM auth_user au
+         INNER JOIN catalog_bookinstance cbi ON au.id = cbi.borrower_id
+GROUP BY au.id;''')
+
+    author_biggest_bookinstance_count = Author.objects.raw('''SELECT ca.id, first_name, last_name, title
+FROM catalog_author ca
+         INNER JOIN catalog_book cb ON ca.id = cb.author_id
+WHERE cb.id IN (SELECT cb1.id
+                FROM catalog_bookinstance cbi
+                         INNER JOIN catalog_book cb1 ON cb1.id = cbi.book_id
+                WHERE author_id = ca.id
+                GROUP BY cb1.id
+                HAVING COUNT(cbi.id) >= ALL (SELECT COUNT(*)
+                                             FROM catalog_bookinstance cbi1
+                                                      INNER JOIN catalog_book cb1
+                                                                 ON cb1.id = cbi1.book_id
+                                             WHERE author_id = ca.id
+                                             GROUP BY cb1.id));''')
+
+    books_without_instances = Book.objects.raw('''SELECT cb.id, title
+FROM catalog_book cb
+         LEFT JOIN catalog_bookinstance cbi
+             ON cb.id = cbi.book_id
+WHERE cbi.id IS NULL;''')
+
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
 
@@ -347,11 +375,29 @@ WHERE date_of_birth >= ALL (SELECT MAX(date_of_birth) FROM catalog_author)''')
         'num_books_with_crime_word': num_books_with_crime_word,
         'authors_with_max_books': authors_with_max_books,
         'youngest_and_oldest_authors': youngest_and_oldest_authors,
+        'user_loaned_books_count': user_loaned_books_count,
+        'author_biggest_bookinstance_count': author_biggest_bookinstance_count,
+        'books_without_instances': books_without_instances,
 
         'num_visits': num_visits,
     }
 
     return render(request, 'index.html', context)
+
+
+@login_required
+def update_book_summary(request):
+    with connection.cursor() as cursor:
+        cursor.execute('''UPDATE catalog_book
+SET summary = CONCAT(summary, ' Highest number of genres in library.')
+WHERE (summary NOT LIKE '%. Highest number of genres in library.%')
+  AND id IN (SELECT book_id
+             FROM catalog_book_genre
+             GROUP BY book_id
+             HAVING COUNT(genre_id) >= ALL (SELECT COUNT(genre_id)
+                                            FROM catalog_book_genre
+                                            GROUP BY book_id));''')
+    return redirect('index')
 
 
 @login_required

@@ -5,14 +5,6 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
 
-    # Custom queries
-    # path('books/language/<str:name>/',
-    #      views.BooksByLanguageListView.as_view(), name='books'),
-    path('books/title/like/<str:title>/',
-         views.BooksByTitleLikeListView.as_view(), name='books'),
-    path('authors/born/between/<str:date1>/<str:date2>',
-         views.AuthorsBornBetweenListView.as_view(), name='authors'),
-
     # Book
     path('books/', views.BookListView.as_view(), name='books'),
     path('books/print/', views.print_books_pdf, name='print_books'),
@@ -21,6 +13,7 @@ urlpatterns = [
     path('book/create/', views.BookCreate.as_view(), name='book-create'),
     path('book/<int:pk>/update/', views.BookUpdate.as_view(), name='book-update'),
     path('book/<int:pk>/delete/', views.BookDelete.as_view(), name='book-delete'),
+    path('books/update_summary', views.update_book_summary, name='update_book_summary'),
 
     # BookInstance
     path('bookinstances/', views.BookInstanceListView.as_view(), name='bookinstances'),

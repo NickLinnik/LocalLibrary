@@ -7,6 +7,16 @@
         <a href="{% url 'author-create' %}">Add author</a>
         <hr>
     {% endif %}
+
+    <form class="mb-3" action="{% url 'authors' %}" method="get">
+    <label for="date1">Birth date: </label>
+    <input name="date1" id="date1" type="text">
+    <label for="date2">Death date: </label>
+    <input name="date2" id="date1" type="text">
+    <input type="submit" value="Search">
+    </form>
+    <hr>
+
     {% if author_list %}
         <ul>
             {% for author in author_list %}

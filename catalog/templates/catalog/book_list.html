@@ -9,6 +9,14 @@
         <p><a href="{% url 'print_books' %}">Print list to table</a></p>
         <hr>
     {% endif %}
+
+    <form class="mb-3" action="{% url 'books' %}" method="get">
+    <label for="like">Name contains: </label>
+    <input name="like" id="like" type="text">
+    <input type="submit" value="Search">
+    </form>
+    <hr>
+
     {% if book_list %}
         <ul>
             {% for book in book_list %}

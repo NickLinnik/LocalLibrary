@@ -27,6 +27,59 @@
                 ({{ author.date_of_birth }} - {{ author.date_of_death|default_if_none:'...' }})
             </li>
         {% endfor %}
+        <li><strong>Books without instances: </strong>
+            {% if books_without_instances %}
+                {% for book in books_without_instances %}
+                    <span>{{ book.title }}</span>
+                    {% if not forloop.last %},{% endif %}
+                {% endfor %}
+            {% else %}
+                We have intances of all books!
+            {% endif %}
+        </li>
 
+        {% if user.is_superuser and user_loaned_books_count %}
+            <hr>
+            <table class="table table-active">
+                <tr>
+                    <th>Username</th>
+                    <th>Loanded books count</th>
+                </tr>
+                {% for user_ in user_loaned_books_count %}
+                    <tr>
+                        <td>{{ user_.username }}</td>
+                        <td>{{ user_.count }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        {% if author_biggest_bookinstance_count %}
+            <hr>
+            <table class="table table-active">
+                <tr>
+                    <th>Author first name</th>
+                    <th>Author last name</th>
+                    <th>Author's book title with highest count of instances</th>
+                </tr>
+                {% for author in author_biggest_bookinstance_count %}
+                    <tr>
+                        <td>{{ author.first_name }}</td>
+                        <td>{{ author.last_name }}</td>
+                        <td>{{ author.title }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        <hr>
+
+        {% if user.is_superuser %}
+            <form class="mb-3" action="{% url 'update_book_summary' %}" method="post">
+                {% csrf_token %}
+                <label for="upd">Update corresponding books' summary with "Highest number of genres in library"</label>
+                <input id="upd" type="submit" value="Update">
+            </form>
+            <hr>
+        {% endif %}
     </ul>
 {% endblock %}
