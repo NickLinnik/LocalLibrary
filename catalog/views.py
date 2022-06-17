@@ -127,30 +127,24 @@ class StatusDetail(generic.DetailView):
     model = Status
 
 
-class AuthorCreate(PermissionRequiredMixin, CreateView):
+class CRUD_DispatcherView(generic.View):
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return self.post(request, *args, **kwargs)
+
+
+class AuthorCreate(CRUD_DispatcherView, PermissionRequiredMixin, CreateView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
 
-    # initial = {'date_of_death': '11/06/2020'}
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
-
-
-class AuthorUpdate(PermissionRequiredMixin, UpdateView):
+class AuthorUpdate(CRUD_DispatcherView, PermissionRequiredMixin, UpdateView):
     model = Author
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
 
 class AuthorDelete(PermissionRequiredMixin, DeleteView):
@@ -158,35 +152,22 @@ class AuthorDelete(PermissionRequiredMixin, DeleteView):
     permission_required = 'catalog.can_mark_returned'
     success_url = reverse_lazy('authors')
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+            operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().post(self, request, *args, **kwargs)
 
 
-class BookCreate(PermissionRequiredMixin, CreateView):
+class BookCreate(CRUD_DispatcherView, PermissionRequiredMixin, CreateView):
     model = Book
     permission_required = 'catalog.can_mark_returned'
     fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language_of_origin']
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
-
-class BookUpdate(PermissionRequiredMixin, UpdateView):
+class BookUpdate(CRUD_DispatcherView, PermissionRequiredMixin, UpdateView):
     model = Book
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
 
 class BookDelete(PermissionRequiredMixin, DeleteView):
@@ -194,36 +175,23 @@ class BookDelete(PermissionRequiredMixin, DeleteView):
     permission_required = 'catalog.can_mark_returned'
     success_url = reverse_lazy('books')
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+            operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().post(self, request, *args, **kwargs)
 
 
-class BookInstanceCreate(PermissionRequiredMixin, CreateView):
+class BookInstanceCreate(CRUD_DispatcherView, PermissionRequiredMixin, CreateView):
     model = BookInstance
     permission_required = 'catalog.can_mark_returned'
     fields = ['book', 'language', 'imprint', 'status']
     initial = {'status': 1}
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
-
-class BookInstanceUpdate(PermissionRequiredMixin, UpdateView):
+class BookInstanceUpdate(CRUD_DispatcherView, PermissionRequiredMixin, UpdateView):
     form_class = UpdateBookInstanceModelForm
     model = BookInstance
     permission_required = 'catalog.can_mark_returned'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
 
 class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
@@ -233,35 +201,22 @@ class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('bookinstances')
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+            operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().post(self, request, *args, **kwargs)
 
 
-class GenreCreate(PermissionRequiredMixin, CreateView):
+class GenreCreate(CRUD_DispatcherView, PermissionRequiredMixin, CreateView):
     model = Genre
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
-
-class GenreUpdate(PermissionRequiredMixin, UpdateView):
+class GenreUpdate(CRUD_DispatcherView, PermissionRequiredMixin, UpdateView):
     model = Genre
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
 
 class GenreDelete(PermissionRequiredMixin, DeleteView):
@@ -271,35 +226,22 @@ class GenreDelete(PermissionRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('genres')
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+            operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().post(self, request, *args, **kwargs)
 
 
-class LanguageCreate(PermissionRequiredMixin, CreateView):
+class LanguageCreate(CRUD_DispatcherView, PermissionRequiredMixin, CreateView):
     model = Language
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
-
-class LanguageUpdate(PermissionRequiredMixin, UpdateView):
+class LanguageUpdate(CRUD_DispatcherView, PermissionRequiredMixin, UpdateView):
     model = Language
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
 
 class LanguageDelete(PermissionRequiredMixin, DeleteView):
@@ -309,35 +251,22 @@ class LanguageDelete(PermissionRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('languages')
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+            operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().post(self, request, *args, **kwargs)
 
 
-class StatusCreate(PermissionRequiredMixin, CreateView):
+class StatusCreate(CRUD_DispatcherView, PermissionRequiredMixin, CreateView):
     model = Status
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
-
-class StatusUpdate(PermissionRequiredMixin, UpdateView):
+class StatusUpdate(CRUD_DispatcherView, PermissionRequiredMixin, UpdateView):
     model = Status
     permission_required = 'catalog.can_mark_returned'
     fields = '__all__'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
 
 
 class StatusDelete(PermissionRequiredMixin, DeleteView):
@@ -347,15 +276,15 @@ class StatusDelete(PermissionRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('statuses')
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
-                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
-        return self.post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+            operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return super().post(self, request, *args, **kwargs)
 
 
 class LogList(generic.ListView):
     model = Log
+    paginate_by = 10
 
 
 def index(request):
