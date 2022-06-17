@@ -4,7 +4,7 @@
     <h1>Book List</h1>
     <hr>
 
-    {% if perms.catalog.can_add_book %}
+    {% if perms.catalog.add_book %}
         <p><a href="{% url 'book-create' %}">Add book</a></p>
         <p><a href="{% url 'print_books' %}">Print list to table</a></p>
         <hr>
@@ -18,7 +18,7 @@
     <hr>
 
 
-    {% if user.is_superuser %}
+    {% if perms.catalog.can_change_book %}
         <form class="mb-3" action="{% url 'update_book_summary' %}" method="post">
             {% csrf_token %}
             <label for="upd">Update corresponding books' summary with "Highest number of genres in library"</label>

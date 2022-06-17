@@ -38,7 +38,7 @@
             {% endif %}
         </li>
 
-        {% if user.is_superuser and user_loaned_books_count %}
+        {% if perms.catalog.can_mark_returned and user_loaned_books_count %}
             <hr>
             <table class="table table-active">
                 <tr>
