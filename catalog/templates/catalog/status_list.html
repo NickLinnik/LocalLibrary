@@ -1,0 +1,26 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Status list</h1>
+    <hr>
+    {% if perms.catalog.can_mark_returned %}
+        <a href="{% url 'status-create' %}">Add status</a>
+        <hr>
+    {% endif %}
+    {% if status_list %}
+        <ul>
+            {% for status in status_list %}
+                <li>
+                    <a href="{{ status.get_absolute_url }}">
+                        {{ status.name }}</a>
+                    {% if perms.catalog.can_mark_returned %}
+                        | <a href="{% url 'status-update' status.id %}">Update status</a> |
+                        <a href="{% url 'status-delete' status.id %}">Delete status</a> |
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>There are no statuses library.</p>
+    {% endif %}
+{% endblock %}

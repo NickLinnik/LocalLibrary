@@ -46,8 +46,15 @@ urlpatterns = [
     path('language/<int:pk>/update/', views.LanguageUpdate.as_view(), name='language-update'),
     path('language/<int:pk>/delete/', views.LanguageDelete.as_view(), name='language-delete'),
 
+    # Status
+    path('statuses/', views.StatusList.as_view(), name='statuses'),
+    path('status/<int:pk>/', views.StatusDetail.as_view(), name='status-detail'),
+    path('status/create/', views.StatusCreate.as_view(), name='status-create'),
+    path('status/<int:pk>/update/', views.StatusUpdate.as_view(), name='status-update'),
+    path('status/<int:pk>/delete/', views.StatusDelete.as_view(), name='status-delete'),
+
     # Log
-    path('logs/', views.LogList.as_view(), name='logs')
+    path('logs/', views.LogList.as_view(), name='logs'),
 
     # re_path(r'^book/(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})',
     #         views.FilteredBookListView.as_view, name='filtered-book-detail'),

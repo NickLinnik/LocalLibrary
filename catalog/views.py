@@ -3,7 +3,6 @@ from os.path import join
 import re
 import pandas as pd
 import pdfkit as pdf
-import codecs
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -16,7 +15,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import User
 
 from .forms import RenewBookForm, UpdateBookInstanceModelForm
-from .models import Author, Book, BookInstance, Genre, Language, Log
+from .models import Author, Book, BookInstance, Genre, Language, Log, Status
 
 config = pdf.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
 html_dir = join('catalog', 'static', 'prints', 'html')
@@ -55,7 +54,7 @@ class BookDetailView(generic.DetailView):
 
 class AuthorListView(generic.ListView):
     model = Author
-    paginate_by = 10
+    paginate_by = 20
 
     def get_queryset(self):
         date1 = self.request.GET.get('date1')
@@ -72,7 +71,7 @@ class AuthorDetailView(generic.DetailView):
 
 class BookInstanceListView(LoginRequiredMixin, generic.ListView):
     model = BookInstance
-    paginate_by = 10
+    paginate_by = 20
 
 
 class BookInstanceDetailView(LoginRequiredMixin, generic.DetailView):
@@ -83,7 +82,7 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     """Generic class-based view listing books on loan to current user."""
     model = BookInstance
     template_name = join('catalog', 'bookinstance_list_borrowed_user.html')
-    paginate_by = 10
+    paginate_by = 20
 
     def get_queryset(self):
         return BookInstance.objects \
@@ -94,7 +93,7 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
 class LoanedBooksListView(PermissionRequiredMixin, generic.ListView):
     model = BookInstance
     permission_required = 'catalog.can_mark_returned'
-    paginate_by = 10
+    paginate_by = 20
     template_name = join('catalog', 'bookinstance_list_borrowed_all.html')
 
     def get_queryset(self):
@@ -103,7 +102,7 @@ class LoanedBooksListView(PermissionRequiredMixin, generic.ListView):
 
 class GenreList(generic.ListView):
     model = Genre
-    paginate_by = 10
+    paginate_by = 20
 
 
 class GenreDetail(generic.DetailView):
@@ -112,11 +111,20 @@ class GenreDetail(generic.DetailView):
 
 class LanguageList(generic.ListView):
     model = Language
-    paginate_by = 10
+    paginate_by = 20
 
 
 class LanguageDetail(generic.DetailView):
     model = Language
+
+
+class StatusList(generic.ListView):
+    model = Status
+    paginate_by = 20
+
+
+class StatusDetail(generic.DetailView):
+    model = Status
 
 
 class AuthorCreate(PermissionRequiredMixin, CreateView):
@@ -197,7 +205,7 @@ class BookInstanceCreate(PermissionRequiredMixin, CreateView):
     model = BookInstance
     permission_required = 'catalog.can_mark_returned'
     fields = ['book', 'language', 'imprint', 'status']
-    initial = {'status': 'a'}
+    initial = {'status': 1}
 
     def dispatch(self, request, *args, **kwargs):
         if request.method == 'POST':
@@ -300,6 +308,44 @@ class LanguageDelete(PermissionRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('languages')
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return self.post(request, *args, **kwargs)
+
+
+class StatusCreate(PermissionRequiredMixin, CreateView):
+    model = Status
+    permission_required = 'catalog.can_mark_returned'
+    fields = '__all__'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return self.post(request, *args, **kwargs)
+
+
+class StatusUpdate(PermissionRequiredMixin, UpdateView):
+    model = Status
+    permission_required = 'catalog.can_mark_returned'
+    fields = '__all__'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            Log(model=self.model.__name__, user_id=request.user.id, date=datetime.datetime.now(),
+                operation=re.search(r'Create|Update|Delete', str(super()))[0]).save()
+        return self.post(request, *args, **kwargs)
+
+
+class StatusDelete(PermissionRequiredMixin, DeleteView):
+    model = Status
+    permission_required = 'catalog.can_mark_returned'
+
+    def get_success_url(self):
+        return reverse_lazy('statuses')
 
     def dispatch(self, request, *args, **kwargs):
         if request.method == 'POST':

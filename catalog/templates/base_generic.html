@@ -33,6 +33,9 @@
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'bookinstances' %}" class="third after">All book copies</a></li>
                     {% endif %}
+                    {% if user.is_superuser %}
+                        <li><a href="{% url 'statuses' %}" class="third after">All statuses</a></li>
+                    {% endif %}
                     <hr>
                     {% if user.is_authenticated %}
                         <li>User: {{ user.get_username }}</li>

@@ -1,0 +1,12 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+    <h4>Name: {{ status.name }}</h4>
+    {% if status.extra_info %}
+        <p>Extra info: {{ status.extra_info }}</p>
+    {% endif %}
+    {% if perms.catalog.can_mark_returned %}
+        <p>| <a href="{% url 'status-update' status.id %}">Update status</a> |
+            <a href="{% url 'status-delete' status.id %}">Delete status</a> |</p>
+    {% endif %}
+{% endblock %}
