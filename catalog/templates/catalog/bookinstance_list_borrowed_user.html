@@ -1,6 +1,6 @@
 {% extends 'catalog/bookinstance_list_borrowed_all.html' %}
 
 {% block bookinstance_view %}
-    <a href="{% url 'book-detail' bookinstance.book.pk %}">
+    <a href="{% url 'bookinstance-detail' bookinstance.pk %}">
         {{ bookinstance.book.title }}</a> ({{ bookinstance.due_back }})
 {% endblock %}

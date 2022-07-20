@@ -1,8 +1,10 @@
 from django.contrib import admin
-from .models import Author, Book, BookInstance, Genre, Language
+from .models import Author, Book, BookInstance, Genre, Language, Status, Log
 
 admin.site.register(Genre)
 admin.site.register(Language)
+admin.site.register(Status)
+admin.site.register(Log)
 
 
 class BookInline(admin.TabularInline):
